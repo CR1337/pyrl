@@ -1,0 +1,2 @@
+class RLException(Exception):
+    pass

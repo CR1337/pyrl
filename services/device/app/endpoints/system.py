@@ -1,6 +1,8 @@
 from flask import Blueprint, request
 from flask_api import status
 
+from .util import handle_exceptions
+
 
 system_blueprint = Blueprint('system_blueprint', __name__)
 
@@ -10,6 +12,7 @@ system_blueprint = Blueprint('system_blueprint', __name__)
     methods=['POST', 'DELETE'],
     endpoint='ep_master'
 )
+@handle_exceptions
 def ep_master():
     if request.method == 'POST':
         ...
@@ -22,5 +25,6 @@ def ep_master():
     methods=['POST'],
     endpoint='ep_system_time'
 )
+@handle_exceptions
 def ep_system_time():
     ...

@@ -1,6 +1,7 @@
 from functools import wraps
 import sys
 import traceback
+import logging
 
 from flask import make_response
 from flask_api import status
@@ -16,9 +17,11 @@ def handle_exceptions(func):
             exception_raised = False
         except RLException:
             status_code = status.HTTP_400_BAD_REQUEST
+            logging.exception(msg="Bad Request")
             exception_raised = True
         except Exception:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            logging.exception(msg="Internal Server Error")
             exception_raised = True
         finally:
             if exception_raised:
@@ -30,5 +33,4 @@ def handle_exceptions(func):
                 }
                 response = make_response((response_content, status_code))
             return response
-            # TODO: logging
     return wrapper

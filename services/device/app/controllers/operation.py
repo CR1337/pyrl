@@ -37,13 +37,5 @@ class OperationController():
         ...
 
     @classmethod
-    def lock(cls):
-        ...
-
-    @classmethod
-    def unlock(cls):
-        ...
-
-    @classmethod
     def testloop(cls):
         ...

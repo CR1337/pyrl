@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask_api import status
 
 from .util import handle_exceptions
+from ..controllers.operation import OperationController
 
 operation_blueprint = Blueprint('operation_blueprint', __name__)
 

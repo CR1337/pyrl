@@ -1,4 +1,8 @@
+
+
 class SystemController():
+
+    _connected_master = None
 
     @classmethod
     def set_system_time(cls, system_time):
@@ -11,3 +15,7 @@ class SystemController():
     @classmethod
     def deregister_master(cls):
         ...
+
+    @classmethod
+    def get_status(cls):
+        return None

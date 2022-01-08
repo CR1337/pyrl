@@ -28,3 +28,12 @@ def ep_master():
 @handle_exceptions
 def ep_system_time():
     ...
+
+
+@system_blueprint.route(
+    "/status",
+    methods=['GET'],
+    endpoint='ep_status'
+)
+def ep_status():
+    ...

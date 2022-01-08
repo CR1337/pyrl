@@ -58,3 +58,12 @@ def ep_lock():
 @handle_exceptions
 def ep_testloop():
     ...
+
+
+@operation_blueprint.route(
+    "/status",
+    methods=['GET'],
+    endpoint='ep_status'
+)
+def ep_status():
+    ...

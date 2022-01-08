@@ -39,3 +39,7 @@ class OperationController():
     @classmethod
     def testloop(cls):
         ...
+
+    @classmethod
+    def get_status(cls):
+        return None

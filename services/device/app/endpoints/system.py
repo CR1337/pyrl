@@ -1,8 +1,8 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from flask_api import status
 
 from .util import handle_exceptions
-
+from ..controllers.system import SystemController
 
 system_blueprint = Blueprint('system_blueprint', __name__)
 
@@ -36,4 +36,4 @@ def ep_system_time():
     endpoint='ep_status'
 )
 def ep_status():
-    ...
+    return jsonify(SystemController.get_status())

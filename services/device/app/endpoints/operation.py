@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from flask_api import status
 
 from .util import handle_exceptions
@@ -66,4 +66,4 @@ def ep_testloop():
     endpoint='ep_status'
 )
 def ep_status():
-    ...
+    return jsonify(OperationController.get_status())

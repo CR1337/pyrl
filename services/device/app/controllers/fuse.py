@@ -40,3 +40,7 @@ class FuseController():
     @lock_bus
     def get_errors(cls):
         ...
+
+    @classmethod
+    def get_status(cls):
+        return None

@@ -1,6 +1,7 @@
 import re
 
 from ..util.exceptions import RLException
+from ..controllers.fuse import FuseController
 
 
 class AddressException(RLException):
@@ -9,6 +10,11 @@ class AddressException(RLException):
 
 
 class AddressSyntaxError(AddressException):
+    def __init__(self, address_string):
+        super().__init__(address_string)
+
+
+class InvalidAddress(AddressException):
     def __init__(self, address_string):
         super().__init__(address_string)
 
@@ -40,4 +46,21 @@ class Address():
             else int(range_match.group('range'))
 
     def _validate_address(self):
-        ...  # TODO
+        if self._letter not in FuseController.CHIP_ADDRESSES.keys():
+            raise InvalidAddress(self._address_string)
+        if not (0 <= self._number <= 15):
+            raise InvalidAddress(self._address_string)
+        if not (0 <= self._range <= (4 - self._number % 4)):
+            raise InvalidAddress(self._address_string)
+
+    @property
+    def letter(self):
+        return self._letter
+
+    @property
+    def number(self):
+        return self._number
+
+    @property
+    def range(self):
+        return self._range

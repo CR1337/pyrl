@@ -1,9 +1,9 @@
 from threading import Lock
-from functools import
 import subprocess
 import string
 from smbus2 import SMBus
 from functools import wraps
+from itertools import product
 
 from ..util.exceptions import RLException
 
@@ -44,6 +44,8 @@ class FuseController():
     I2C_BUS = 1
 
     LOCK_REGISTER_ADDRESS = 0x00
+    FUSE_REGISTER_ADDRESSES = [0x14, 0x15, 0x16, 0x17]
+    ERROR_REGISTER_ADDRESSES = [0x1d, 0x1e]
 
     LOCK_MASK = 0x10
     UNLOCK_MASK = 0x00
@@ -71,8 +73,7 @@ class FuseController():
         ][0]
         row_entries = [
             entry for entry in row_0x60.split(" ")[1:]
-            if all(c in string.hexdigits for c in entry)
-            and len(entry) > 0
+            if all(c in string.hexdigits for c in entry) and len(entry) > 0
         ]
         addresses = [
             int(address, 16) for address
@@ -90,8 +91,41 @@ class FuseController():
 
     CHIP_ADDRESSES = _read_chip_addresses()
     FUSE_STATES = {
-
+        letter: [
+            'idle'
+            for _ in range(16)
+        ]
+        for letter in CHIP_ADDRESSES.keys()
     }
+
+    @classmethod
+    def set_fuse_state(cls, address, value):
+        cls.FUSE_STATES[address.letter][address.number] = value
+
+    @classmethod
+    def reset_fuse_states(cls):
+        for letter in cls.FUSE_STATES.keys():
+            for number in range(16):
+                cls.FUSE_STATES[letter][number] = 'idle'
+
+    @classmethod
+    def _get_chip_address(cls, address):
+        return cls.CHIP_ADDRESSES[address.letter]
+
+    @classmethod
+    def _get_fuse_register_address(cls, address):
+        return cls.FUSE_REGISTER_ADDRESSES[address.number // 4]
+
+    @classmethod
+    def _get_fuse_register_mask(cls, address):
+        mask = 0x00
+        for i in range(address.range):
+            mask += 1 << (((address.number + i) % 4) * 2)
+        return mask
+
+    @classmethod
+    def _get_reverse_fuse_register_mask(cls, fuse_register_mask):
+        return 0xff - fuse_register_mask
 
     @classmethod
     def _write(cls, chip_address, register_address, value):
@@ -117,24 +151,36 @@ class FuseController():
                 register_address
             )
 
-
     @classmethod
     @lock_bus
     def light(cls, address):
         value = cls._read(
-            address.chip_address,
-            address.register_address
+            cls._get_chip_address(address),
+            cls._get_fuse_register_address(address)
         )
-        # TODO
+        fuse_register_mask = cls._get_fuse_register_address(address)
+        value &= cls._get_reverse_fuse_register_mask(fuse_register_mask)
+        value |= fuse_register_mask
+        cls._write(
+            cls._get_chip_address(address),
+            cls._get_fuse_register_address(address),
+            value
+        )
 
     @classmethod
     @lock_bus
     def unlight(cls, address):
         value = cls._read(
-            address.chip_address,
-            address.register_address
+            cls._get_chip_address(address),
+            cls._get_fuse_register_address(address)
         )
-        # TODO
+        fuse_register_mask = cls._get_fuse_register_address(address)
+        value &= cls._get_reverse_fuse_register_mask(fuse_register_mask)
+        cls._write(
+            cls._get_chip_address(address),
+            cls._get_fuse_register_address(address),
+            value
+        )
 
     @classmethod
     @lock_bus
@@ -159,8 +205,23 @@ class FuseController():
     @classmethod
     @lock_bus
     def get_errors(cls):
-        ...
+        return {
+            letter: [
+                False if (value & mask) == 0 else True
+                for value, mask in product(
+                    [
+                        cls._read(chip_address, register_address)
+                        for register_address in cls.ERROR_REGISTER_ADDRESSES
+                    ],
+                    range(8)
+                )
+            ]
+            for letter, chip_address in cls.CHIP_ADDRESSES.items()
+        }
 
     @classmethod
     def get_status(cls):
-        return None
+        return {
+            'fuse_states': cls.FUSE_STATES,
+            'fuse_errors': cls.get_errors()
+        }

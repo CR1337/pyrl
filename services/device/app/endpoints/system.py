@@ -37,3 +37,12 @@ def ep_system_time():
 )
 def ep_status():
     return jsonify(SystemController.get_status())
+
+
+@system_blueprint.route(
+    "/logs",
+    methods=['GET'],
+    endpoint='ep_logs'
+)
+def ep_logs():
+    ...

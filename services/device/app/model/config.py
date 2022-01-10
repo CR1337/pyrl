@@ -1,5 +1,6 @@
 class Config():
 
+    # Timings
     HEARTBEAT_INTERVAL = 0.5
     SCHEDULING_RESOLUTION = 0.5
     FIRE_DURATION = 0.1

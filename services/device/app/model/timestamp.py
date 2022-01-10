@@ -1,4 +1,5 @@
 from datetime import datetime
+from dateutil import parser
 
 from ..util.exceptions import RLException
 
@@ -24,6 +25,18 @@ class Timestamp():
             raise InvalidTimestamp(h, m, s, ds)
         total_seconds = h * 3600 + m * 60 + s + ds * 0.1
         return cls(total_seconds)
+
+    @classmethod
+    def from_datetime(cls, value):
+        return Timestamp((value - datetime(1970, 1, 1)).total_seconds())
+
+    @classmethod
+    def from_isostring(cls, isostring):
+        return Timestamp.from_datetime(parser.parse(isostring))
+
+    @classmethod
+    def now(cls):
+        return cls.from_datetime(datetime.now())
 
     def __init__(self, total_seconds):
         self._total_seconds = total_seconds
@@ -52,14 +65,6 @@ class Timestamp():
     def __sub__(self, other):
         return Timestamp(self._total_seconds - other._total_seconds)
 
-    @classmethod
-    def from_datetime(cls, value):
-        return Timestamp((value - datetime(1970, 1, 1)).total_seconds())
-
-    @classmethod
-    def now(cls):
-        return cls.from_datetime(datetime.now())
-
     @property
     def h(self):
         return int(
@@ -83,6 +88,14 @@ class Timestamp():
         return int(
             (self._total_seconds - self.s - self.m * 60 - self.h * 3600) * 10
         )
+
+    @property
+    def datetime(self):
+        ...
+
+    @property
+    def isostring(self):
+        ...
 
     def __repr__(self):
         return f"{self.h}:{self.m:02d}:{self.s:02d}.{self.ds}"

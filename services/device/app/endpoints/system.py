@@ -52,4 +52,5 @@ def ep_status():
     endpoint='ep_logs'
 )
 def ep_logs():
-    return LogsController.get_logs(), status.HTTP_200_OK
+    data = request.get_json(force=True)
+    return LogsController.get_logs(data['log_format']), status.HTTP_200_OK

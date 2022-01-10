@@ -1,5 +1,11 @@
 from ..util.system_time import get_system_time_isostring
 import logging
+from ..util.exceptions import RLException
+
+
+class InvalidLogFormat(RLException):
+    def __init__(self, log_format):
+        self.log_format = log_format
 
 
 class LogsController():
@@ -18,6 +24,16 @@ class LogsController():
     )
 
     @classmethod
-    def get_logs(cls):
+    def _wrap_logs_in_html(cls, raw_logs):
+        return ""  # TODO
+
+    @classmethod
+    def get_logs(cls, log_format):
         with open(cls.LOG_FILENAME, 'r') as file:
-            return file.read()
+            raw_logs = file.read()
+        if log_format == 'text':
+            return raw_logs
+        elif log_format == 'html':
+            return cls._wrap_logs_in_html(raw_logs)
+        else:
+            raise InvalidLogFormat(log_format)

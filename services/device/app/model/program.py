@@ -63,3 +63,10 @@ class Program():
             self._stop_event.clear()
         self._callback()
         self._callback = None
+
+    @property
+    def as_dict(self):
+        return {
+            'name': self._program_name,
+            'commands': self._command_list
+        }

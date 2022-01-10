@@ -43,4 +43,7 @@ class SystemController():
 
     @classmethod
     def get_device_id(cls):
-        return ""  # TODO
+        return {
+            'connected_master_ip': cls._connected_master_ip,
+            'system_time': get_system_time()
+        }

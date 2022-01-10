@@ -223,7 +223,8 @@ class FuseController():
     def get_status(cls):
         return {
             'fuse_states': cls.FUSE_STATES,
-            'fuse_errors': cls.get_errors()
+            'fuse_errors': cls.get_errors(),
+            'locked': cls.is_locked()
         }
 
     @classmethod

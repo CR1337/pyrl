@@ -59,6 +59,7 @@ class OperationController():
     LOCK = Lock()
     UNSCHEDULE_EVENT = Event()
     SCHEDULE_THREAD = None
+    SCHEDULED_TIMESTAMP = None
     PROGRAM = None
     STATE = 'unloaded'
 
@@ -116,10 +117,10 @@ class OperationController():
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
+        cls.SCHEDULED_TIMESTAMP = timestamp
         cls.SCHEDULE_THREAD = Thread(
             target=cls._schedule_handler,
-            name="schedule_handler_thread",
-            args=(timestamp,)
+            name="schedule_handler_thread"
         )
         cls.SCHEDULE_THREAD.start()
         cls.STATE = 'scheduled'
@@ -163,19 +164,26 @@ class OperationController():
         cls.STATE = 'unloaded'
 
     @classmethod
-    def _schedule_handler(cls, timestamp):
+    def _schedule_handler(cls):
         while not cls.UNSCHEDULE_EVENT.is_set():
-            if timestamp <= Timestamp.now():
+            if cls.SCHEDULED_TIMESTAMP <= Timestamp.now():
                 cls.PROGRAM.run(callback=cls._program_callback)
                 cls.STATE = 'running'
                 if cls.UNSCHEDULE_EVENT.is_set():
                     cls.UNSCHEDULE_EVENT.clear()
+                cls.SCHEDULED_TIMESTAMP = None
                 return
             time.sleep(0.5)
         if cls.UNSCHEDULE_EVENT.is_set():
             cls.UNSCHEDULE_EVENT.clear()
+        cls.SCHEDULED_TIMESTAMP = None
         cls.STATE = 'loaded'
 
     @classmethod
     def get_status(cls):
-        return None
+        return {
+            'fuse_status': FuseController.get_status(),
+            'program': None if cls.PROGRAM is None else cls.PROGRAM.as_dict(),
+            'state': cls.STATE,
+            'scheduled_time': cls.SCHEDULED_TIMESTAMP.to_isostring()
+        }

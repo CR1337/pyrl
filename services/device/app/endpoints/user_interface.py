@@ -7,6 +7,9 @@ import json
 from itertools import count
 
 from .util import handle_exceptions
+from ..model.config import Config
+from ..controllers.operation import OperationController
+from ..controllers.system import SystemController
 
 user_iterface_blueprint = Blueprint('user_interface_blueprint', __name__)
 
@@ -29,19 +32,10 @@ def ep_root():
 def ep_status_stream():
     def status_stream():
         for i in count(start=0):
-            time.sleep(0.5)
-            # TODO:
+            time.sleep(Config.STATUS_STREAM_INTERVAL)
             data = {
-                'system_status': {
-                    'system_time': None,
-                    'connected_master_ip': None
-                },
-                'operation_status': {
-                    'loaded_program': None,
-                    'program_state': None,
-                    'fuse_states': [None],
-                    'locked': None
-                }
+                'system_status': SystemController.get_status(),
+                'operation_status': OperationController.get_status()
             }
             yield f"data: {json.dumps(data)}\nid: {str(i)}\n\n"
     return Response(

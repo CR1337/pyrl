@@ -1,4 +1,4 @@
-import logging
+from .controllers.logs import LogsController
 
 from flask import Flask
 

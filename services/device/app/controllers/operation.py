@@ -13,14 +13,6 @@ class OperationController():
         ...
 
     @classmethod
-    def pause_program(cls):
-        ...
-
-    @classmethod
-    def continue_program(cls):
-        ...
-
-    @classmethod
     def stop_program(cls):
         ...
 

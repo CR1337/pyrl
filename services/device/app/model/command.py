@@ -28,8 +28,8 @@ class Command():
         self._description = description
 
     @property
-    def due(self):
-        return self._timestamp.elapsed()
+    def timestamp(self):
+        return self._timestamp
 
     def stage_fuse(self):
         FuseController.set_fuse_state(self._address, 'staged')

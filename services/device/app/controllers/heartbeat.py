@@ -5,6 +5,7 @@ import time
 import requests
 from .operation import OperationController
 from .system import SystemController
+from ..model.config import Config
 
 
 class HeartbeatController():
@@ -46,4 +47,4 @@ class HeartbeatController():
                 response.raise_for_status()
             except requests.exceptions.RequestException:
                 ...  # TODO: log
-            time.sleep(0.5)
+            time.sleep(Config.HEARTBEAT_INTERVAL)

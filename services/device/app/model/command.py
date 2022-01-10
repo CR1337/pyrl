@@ -3,6 +3,7 @@ from ..controllers.fuse import FuseController
 
 from .address import Address
 from .timestamp import Timestamp
+from .config import Config
 
 from threading import Thread
 import time
@@ -44,7 +45,7 @@ class Command():
     def _execution_handler(self):
         try:
             FuseController.light(self._address)
-            time.sleep(0.1)
+            time.sleep(Config.FIRE_DURATION)
         finally:
             FuseController.set_fuse_state(self._address, 'fired')
             FuseController.unlight(self._address)

@@ -1,6 +1,7 @@
 from .timestamp import Timestamp
 from .command import Command, ForeignDeviceId
 from ..util.system_time import get_system_time
+from .config import Config
 
 from threading import Thread, Event
 import time
@@ -61,7 +62,7 @@ class Program():
                 command_idx += 1
                 if command_idx >= len(self._commands):
                     break
-            time.sleep(0.05)
+            time.sleep(Config.PROGRAM_RESOLUTION)
 
         if self._stop_event.is_set():
             self._stop_event.clear()

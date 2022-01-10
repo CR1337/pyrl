@@ -1,11 +1,10 @@
 import time
 
-from requests.api import get
 from services.device.app.model.program import Program
 from ..util.exceptions import RLException
 from .fuse import FuseController
-from ..model.timestamp import Timestamp
 from ..util.system_time import get_system_time
+from ..model.config import Config
 
 from threading import Lock, Event, Thread
 
@@ -176,7 +175,7 @@ class OperationController():
                     cls.UNSCHEDULE_EVENT.clear()
                 cls.SCHEDULED_TIME = None
                 return
-            time.sleep(0.5)
+            time.sleep(Config.SCHEDULING_RESOLUTION)
         if cls.UNSCHEDULE_EVENT.is_set():
             cls.UNSCHEDULE_EVENT.clear()
         cls.SCHEDULED_TIME = None

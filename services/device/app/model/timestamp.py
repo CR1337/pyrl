@@ -1,4 +1,3 @@
-from datetime import datetime
 from dateutil import parser
 
 from ..util.exceptions import RLException
@@ -27,16 +26,15 @@ class Timestamp():
         return cls(total_seconds)
 
     @classmethod
-    def from_datetime(cls, value):
-        return Timestamp((value - datetime(1970, 1, 1)).total_seconds())
+    def from_datetime_delta(cls, datetime1, datetime2):
+        return Timestamp((datetime1 - datetime2).total_seconds())
 
     @classmethod
-    def from_isostring(cls, isostring):
-        return Timestamp.from_datetime(parser.parse(isostring))
-
-    @classmethod
-    def now(cls):
-        return cls.from_datetime(datetime.now())
+    def from_isostring_delta(cls, isostring1, isostring2):
+        return Timestamp.from_datetime_delta(
+            parser.parse(isostring1),
+            parser.parse(isostring2)
+        )
 
     def __init__(self, total_seconds):
         self._total_seconds = total_seconds

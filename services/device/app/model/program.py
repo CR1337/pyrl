@@ -1,5 +1,6 @@
 from .timestamp import Timestamp
 from .command import Command, ForeignDeviceId
+from ..util.system_time import get_system_time
 
 from threading import Thread, Event
 import time
@@ -46,12 +47,15 @@ class Program():
         self._stop_event.set()
 
     def _execution_handler(self):
-        start_timestamp = Timestamp.now()
+        start_time = get_system_time()
         command_idx = 0
 
         while (not self._stop_event.is_set()) and len(self._commands) > 0:
             command = self._commands[command_idx]
-            current_relative_timestamp = Timestamp.now() - start_timestamp
+            current_relative_timestamp = Timestamp.from_datetime_delta(
+                get_system_time(),
+                start_time
+            )
             if command.timestamp <= current_relative_timestamp:
                 command.execute()
                 command_idx += 1

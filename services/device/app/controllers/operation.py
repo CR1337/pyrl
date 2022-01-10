@@ -1,8 +1,11 @@
 import time
+
+from requests.api import get
 from services.device.app.model.program import Program
 from ..util.exceptions import RLException
 from .fuse import FuseController
 from ..model.timestamp import Timestamp
+from ..util.system_time import get_system_time
 
 from threading import Lock, Event, Thread
 
@@ -59,7 +62,7 @@ class OperationController():
     LOCK = Lock()
     UNSCHEDULE_EVENT = Event()
     SCHEDULE_THREAD = None
-    SCHEDULED_TIMESTAMP = None
+    SCHEDULED_TIME = None
     PROGRAM = None
     STATE = 'unloaded'
 
@@ -110,14 +113,14 @@ class OperationController():
     @raise_on_lock
     @lock_interaction
     @classmethod
-    def schedule_program(cls, timestamp):
+    def schedule_program(cls, schedule_time):
         if cls.STATE == 'unloaded':
             raise NoProgramLoaded
         elif cls.STATE == 'scheduled':
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
-        cls.SCHEDULED_TIMESTAMP = timestamp
+        cls.SCHEDULED_TIME = schedule_time
         cls.SCHEDULE_THREAD = Thread(
             target=cls._schedule_handler,
             name="schedule_handler_thread"
@@ -166,17 +169,17 @@ class OperationController():
     @classmethod
     def _schedule_handler(cls):
         while not cls.UNSCHEDULE_EVENT.is_set():
-            if cls.SCHEDULED_TIMESTAMP <= Timestamp.now():
+            if cls.SCHEDULED_TIME <= get_system_time():
                 cls.PROGRAM.run(callback=cls._program_callback)
                 cls.STATE = 'running'
                 if cls.UNSCHEDULE_EVENT.is_set():
                     cls.UNSCHEDULE_EVENT.clear()
-                cls.SCHEDULED_TIMESTAMP = None
+                cls.SCHEDULED_TIME = None
                 return
             time.sleep(0.5)
         if cls.UNSCHEDULE_EVENT.is_set():
             cls.UNSCHEDULE_EVENT.clear()
-        cls.SCHEDULED_TIMESTAMP = None
+        cls.SCHEDULED_TIME = None
         cls.STATE = 'loaded'
 
     @classmethod
@@ -185,5 +188,5 @@ class OperationController():
             'fuse_status': FuseController.get_status(),
             'program': None if cls.PROGRAM is None else cls.PROGRAM.as_dict(),
             'state': cls.STATE,
-            'scheduled_time': cls.SCHEDULED_TIMESTAMP.to_isostring()
+            'scheduled_time': cls.SCHEDULED_TIME.isostring()
         }

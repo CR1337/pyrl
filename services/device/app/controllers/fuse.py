@@ -225,3 +225,12 @@ class FuseController():
             'fuse_states': cls.FUSE_STATES,
             'fuse_errors': cls.get_errors()
         }
+
+    @classmethod
+    def is_locked(cls):
+        for chip_address in cls.CHIP_ADDRESSES.values():
+            value = cls._read(chip_address, cls.LOCK_REGISTER_ADDRESS)
+            value &= cls.LOCK_MASK
+            if value > 0:
+                return True
+        return False

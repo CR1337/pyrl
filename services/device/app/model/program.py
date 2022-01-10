@@ -11,7 +11,7 @@ class Program():
 
     @classmethod
     def testloop_program(cls):
-        ...  # TODO
+        return None  # TODO
 
     def __init__(self, command_list, program_name):
         self._command_list = command_list

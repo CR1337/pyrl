@@ -1,10 +1,8 @@
-from subprocess import call
-from services.device.app.model.timestamp import Timestamp
+from .timestamp import Timestamp
 from .command import Command, ForeignDeviceId
 
 from threading import Thread, Event
 import time
-from datetime import datetime
 
 
 class Program():

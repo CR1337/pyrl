@@ -1,0 +1,26 @@
+version: '3'
+services:
+  device:
+    image: ./services/device
+    container_name: pyrl_device_dev
+    expose:
+      - "80"
+    volumes:
+      - /dev/i2c-1/:/dev/i2c-1
+    env_file:
+      - ./.env.dev
+
+  master:
+    image: ./services/master
+    container_name: pyrl_master_dev
+    expose:
+      - "80"
+    env_file:
+      - ./.env.dev
+
+  nginx:
+    image: ./services/nginx
+    container_name: pyrl_nginx_dev
+    ports:
+      - 80:80
+      - 443:443

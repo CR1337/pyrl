@@ -7,6 +7,13 @@ from ..model.program import Program
 from ..model.address import Address
 from ..controllers.operation import OperationController
 from ..controllers.fuse import FuseController
+from ..util.exceptions import RLException
+
+
+class InvalidProgramControlAction(RLException):
+    def __init__(self, action):
+        self.action = action
+
 
 operation_blueprint = Blueprint('operation_blueprint', __name__)
 
@@ -66,7 +73,7 @@ def ep_program_control():
     elif action == 'unschedule':
         OperationController.unschedule_program()
     else:
-        ...  # TODO
+        raise InvalidProgramControlAction(action)
     return {}, status.HTTP_200_OK
 
 

@@ -74,3 +74,7 @@ class SystemController():
     @classmethod
     def get_device_id(cls):
         return environ['PYRL_DEVCIE_ID']
+
+    @classmethod
+    def is_in_debug_mode(cls):
+        return bool(environ.get('PYRL_DEBUG', False))

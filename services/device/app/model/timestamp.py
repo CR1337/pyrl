@@ -36,6 +36,11 @@ class Timestamp():
             parser.parse(isostring2)
         )
 
+    @classmethod
+    def evenly_spaced(cls, n, interval):
+        for i in range(n):
+            yield cls(i * interval)
+
     def __init__(self, total_seconds):
         self._total_seconds = total_seconds
 

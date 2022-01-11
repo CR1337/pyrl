@@ -2,7 +2,10 @@ from .timestamp import Timestamp
 from .command import Command, ForeignDeviceId
 from ..util.system_time import get_system_time
 from .config import Config
+from ..controllers.fuse import FuseController
+from ..controllers.system import SystemController
 
+from itertools import product
 from threading import Thread, Event
 import time
 
@@ -11,7 +14,26 @@ class Program():
 
     @classmethod
     def testloop_program(cls):
-        return None  # TODO
+        letters = FuseController.CHIP_ADDRESSES.keys()
+        timestamp_generator = Timestamp.evenly_spaced(
+            16 * len(letters),
+            Config.TESTLOOP_INTERVAL
+        )
+        command_list = []
+        for letter, number in product(letters, range(16)):
+            address_string = f"{letter}{number}"
+            timestamp = next(timestamp_generator)
+            command_list.append({
+                'device_id': SystemController.get_device_id(),
+                'address': address_string,
+                'h': timestamp.h,
+                'm': timestamp.m,
+                's': timestamp.s,
+                'ds': timestamp.ds,
+                'name': f"testloop_{address_string}",
+                'description': f"fires {address_string}"
+            })
+        return cls(command_list, 'testloop_program')
 
     def __init__(self, command_list, program_name):
         self._command_list = command_list

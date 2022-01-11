@@ -89,7 +89,7 @@ class Program():
             except Exception:
                 logging.exception(
                     "unexpected error in program execution handler"
-                )PYRL_DEBUG=1PYRL_DEBUG=1
+                )
                 SystemController.put_asnyc_exception()
             time.sleep(Config.PROGRAM_RESOLUTION)
 

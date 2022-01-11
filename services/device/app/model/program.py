@@ -33,7 +33,7 @@ class Program():
                 'name': f"testloop_{address_string}",
                 'description': f"fires {address_string}"
             })
-        return cls(command_list, 'testloop_program')
+        return cls(command_list, 'testloop')
 
     def __init__(self, command_list, program_name):
         self._command_list = command_list

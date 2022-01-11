@@ -3,10 +3,14 @@ import sys
 import traceback
 import logging
 
-from flask import make_response
+from flask import make_response, request
 from flask_api import status
 
 from ..util.exceptions import RLException
+
+
+def log_request(message):
+    logging.info(f"REQUEST from {request.remote_addr}: {message}")
 
 
 def handle_exceptions(func):

@@ -1,4 +1,4 @@
-from flask import (Blueprint, Response, render_template, request,
+from flask import (Blueprint, Response, render_template,
                    send_from_directory)
 from flask_api import status
 
@@ -6,7 +6,7 @@ import time
 import json
 from itertools import count
 
-from .util import handle_exceptions
+from .util import handle_exceptions, log_request
 from ..model.config import Config
 from ..controllers.operation import OperationController
 from ..controllers.system import SystemController
@@ -21,7 +21,8 @@ user_iterface_blueprint = Blueprint('user_interface_blueprint', __name__)
 )
 @handle_exceptions
 def ep_root():
-    return render_template('user_interface.html')
+    log_request("get user interface")
+    return render_template('user_interface.html'), status.HTTP_200_OK
 
 
 @user_iterface_blueprint.route(
@@ -38,10 +39,11 @@ def ep_status_stream():
                 'operation_status': OperationController.get_status()
             }
             yield f"data: {json.dumps(data)}\nid: {str(i)}\n\n"
+    log_request("get status stream")
     return Response(
         status_stream(),
         mimetype="text/event-stream"
-    )
+    ), status.HTTP_200_OK
 
 
 @user_iterface_blueprint.route(
@@ -51,4 +53,5 @@ def ep_status_stream():
 )
 @handle_exceptions
 def ep_static(path):
-    return send_from_directory('static', path)
+    log_request(f"get static file: {path}")
+    return send_from_directory('static', path), status.HTTP_200_OK

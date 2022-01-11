@@ -1,13 +1,13 @@
-from flask import Blueprint, request, jsonify
-from flask_api import status
 from dateutil import parser
+from flask import Blueprint, jsonify, request
+from flask_api import status
 
-from .util import handle_exceptions
-from ..model.program import Program
-from ..model.address import Address
-from ..controllers.operation import OperationController
 from ..controllers.fuse import FuseController
+from ..controllers.operation import OperationController
+from ..model.address import Address
+from ..model.program import Program
 from ..util.exceptions import RLException
+from .util import handle_exceptions, log_request
 
 
 class InvalidProgramControlAction(RLException):
@@ -46,9 +46,15 @@ def ep_program():
     """
     if request.method == 'POST':
         data = request.get_json(force=True)
+        command_list = data['command_list']
+        program_name = data['program_name']
+        log_request(
+            f"set program {program_name} with {len(command_list)} commands"
+        )
         program = Program(data['command_list'], data['program_name'])
         OperationController.set_program(program)
     elif request.method == 'DELETE':
+        log_request("delete program")
         OperationController.delete_program()
     return {}, status.HTTP_200_OK
 
@@ -62,6 +68,14 @@ def ep_program():
 def ep_program_control():
     data = request.get_json(force=True)
     action = data['action']
+    if action == 'schedule':
+        log_request(
+            f"program control action: {action} "
+            f"with time: {data['schedule_time']}"
+        )
+    else:
+        log_request(f"program control action: {action}")
+
     if action == 'run':
         OperationController.run_program()
     elif action == 'stop':
@@ -86,6 +100,7 @@ def ep_program_control():
 def ep_fire():
     data = request.get_json(force=True)
     address = Address(data['address'])
+    log_request(f"fire {address}")
     OperationController.fire(address)
     return {}, status.HTTP_200_OK
 
@@ -99,8 +114,10 @@ def ep_fire():
 def ep_lock():
     data = request.get_json(force=True)
     if data['lock_state']:
+        log_request("lock")
         FuseController.lock()
     else:
+        log_request("unlock")
         FuseController.unlock()
     return {}, status.HTTP_200_OK
 
@@ -112,6 +129,7 @@ def ep_lock():
 )
 @handle_exceptions
 def ep_testloop():
+    log_request("testloop")
     OperationController.testloop()
     return {}, status.HTTP_200_OK
 
@@ -122,4 +140,5 @@ def ep_testloop():
     endpoint='ep_status'
 )
 def ep_status():
+    log_request("get operation status")
     return jsonify(OperationController.get_status()), status.HTTP_200_OK

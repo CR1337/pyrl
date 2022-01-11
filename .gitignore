@@ -9,3 +9,6 @@ pyvenv.cfg
 #ennvironment variables
 .env.dev
 .env.prod
+
+#pyc
+*.pyc

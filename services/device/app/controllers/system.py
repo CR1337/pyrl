@@ -4,6 +4,8 @@ from ..util.exceptions import RLException
 
 from os import environ
 from queue import Queue
+import traceback
+import sys
 
 
 class MasterAlreadyRegistered(RLException):
@@ -36,8 +38,13 @@ class SystemController():
         cls.CONNECTED_MASTER_IP = None
 
     @classmethod
-    def put_asnyc_exception(cls, exception):
-        cls.ASYNC_EXCEPTIONS.put(exception)
+    def put_asnyc_exception(cls):
+        exception_type, exception, trace_back = sys.exc_info()
+        cls.ASYNC_EXCEPTIONS.put({
+            'exception_type': str(exception_type),
+            'excpetion_args': vars(exception),
+            'traceback': traceback.extract_tb(trace_back).format()
+        })
 
     @classmethod
     def get_async_exceptions(cls):

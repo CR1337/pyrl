@@ -33,7 +33,8 @@ class HeartbeatController():
         while not cls.STOP_EVENT.is_set():
             heartbeat_data = {
                 'operation_status': OperationController.get_status(),
-                'system_status': OperationController.get_status()
+                'system_status': SystemController.get_status(),
+                'async_exceptions': SystemController.get_async_exceptions()
             }
             master_url = (
                 f"http://{SystemController.get_connected_master_ip()}"

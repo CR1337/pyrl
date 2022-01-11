@@ -1,7 +1,9 @@
+from logging import exception
 from ..util.system_time import get_system_time, set_system_time
 from ..util.exceptions import RLException
 
 from os import environ
+from queue import Queue
 
 
 class MasterAlreadyRegistered(RLException):
@@ -14,7 +16,8 @@ class NoMasterRegistered(RLException):
 
 class SystemController():
 
-    _connected_master_ip = None
+    CONNECTED_MASTER_IP = None
+    ASYNC_EXCEPTIONS = Queue()
 
     @classmethod
     def change_system_time(cls, system_time):
@@ -22,27 +25,40 @@ class SystemController():
 
     @classmethod
     def register_master(cls, master_ip):
-        if cls._connected_master_ip is not None:
+        if cls.CONNECTED_MASTER_IP is not None:
             raise MasterAlreadyRegistered()
-        cls._connected_master_ip = master_ip
+        cls.CONNECTED_MASTER_IP = master_ip
 
     @classmethod
     def deregister_master(cls):
-        if cls._connected_master_ip is None:
+        if cls.CONNECTED_MASTER_IP is None:
             raise NoMasterRegistered()
-        cls._connected_master_ip = None
+        cls.CONNECTED_MASTER_IP = None
+
+    @classmethod
+    def put_asnyc_exception(cls, exception):
+        cls.ASYNC_EXCEPTIONS.put(exception)
+
+    @classmethod
+    def get_async_exceptions(cls):
+        if cls.ASYNC_EXCEPTIONS.empty():
+            return None
+        exceptions = []
+        while not cls.ASYNC_EXCEPTIONS.empty():
+            exception.append(cls.ASYNC_EXCEPTIONS.get(block=False))
+        return exceptions
 
     @classmethod
     def get_status(cls):
         return {
             'device_id': cls.get_device_id(),
             'system_time': get_system_time(),
-            'connected_master_ip': cls._connected_master_ip
+            'connected_master_ip': cls.CONNECTED_MASTER_IP
         }
 
     @classmethod
     def get_connected_master_ip(cls):
-        return cls._connected_master_ip
+        return cls.CONNECTED_MASTER_IP
 
     @classmethod
     def get_device_id(cls):

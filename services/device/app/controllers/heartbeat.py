@@ -1,6 +1,7 @@
 from threading import Thread
 import threading
 import time
+import logging
 
 import requests
 from .operation import OperationController
@@ -15,6 +16,7 @@ class HeartbeatController():
 
     @classmethod
     def start(cls):
+        logging.info("start sending heartbeats")
         cls.THREAD = Thread(
             target=cls._heartbeat_handler,
             name='heartbeat_handler_thread'
@@ -23,6 +25,7 @@ class HeartbeatController():
 
     @classmethod
     def stop(cls):
+        logging.info("stop sending heartbeats")
         cls.STOP_EVENT.set()
         cls.THREAD.join()
         cls.THREAD = None
@@ -47,5 +50,5 @@ class HeartbeatController():
                 )
                 response.raise_for_status()
             except requests.exceptions.RequestException:
-                ...  # TODO: log
+                logging.exception("exception while sending heartbeat")
             time.sleep(Config.HEARTBEAT_INTERVAL)

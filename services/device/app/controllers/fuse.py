@@ -4,6 +4,7 @@ import string
 from smbus2 import SMBus
 from functools import wraps
 from itertools import product
+import logging
 
 from ..util.exceptions import RLException
 
@@ -55,6 +56,7 @@ class FuseController():
     try:
         BUS = SMBus(I2C_BUS)
     except OSError:
+        logging.exception(f"could not connect to I2C-Bus: {I2C_BUS}")
         raise BusError()
 
     @classmethod
@@ -81,6 +83,9 @@ class FuseController():
             if 0x60 <= int(address, 16) <= 0x6f
                 and int(address, 16) not in [0x68, 0x6b]
         ]
+        logging.debug(
+            f"found I2C addresses: {', '.join([hex(a) for a in addresses])}"
+        )
         return {
             letter: address
             for letter, address in zip(
@@ -100,10 +105,14 @@ class FuseController():
 
     @classmethod
     def set_fuse_state(cls, address, value):
+        logging.debug(
+            f"set fuse state of {address.letter}{address.number} to {value}"
+        )
         cls.FUSE_STATES[address.letter][address.number] = value
 
     @classmethod
     def reset_fuse_states(cls):
+        logging.debug("reset fuse states")
         for letter in cls.FUSE_STATES.keys():
             for number in range(16):
                 cls.FUSE_STATES[letter][number] = 'idle'
@@ -129,6 +138,10 @@ class FuseController():
 
     @classmethod
     def _write(cls, chip_address, register_address, value):
+        logging.debug(
+            f"write value {hex(value)} "
+            f"to {hex(chip_address)}::{hex(register_address)}"
+        )
         try:
             cls.BUS.write_byte_data(chip_address, register_address, value)
         except OSError:
@@ -141,8 +154,15 @@ class FuseController():
 
     @classmethod
     def _read(cls, chip_address, register_address):
+        logging.debug(
+            f"read from {hex(chip_address)}::{hex(register_address)}"
+        )
         try:
             value = cls.BUS.read_byte_data(chip_address, register_address)
+            logging.debug(
+                f"read value {hex(value)} "
+                f"from {hex(chip_address)}::{hex(register_address)}"
+            )
             return value
         except OSError:
             raise ReadError(
@@ -154,6 +174,7 @@ class FuseController():
     @classmethod
     @lock_bus
     def light(cls, address):
+        logging.info(f"light: {address}")
         value = cls._read(
             cls._get_chip_address(address),
             cls._get_fuse_register_address(address)
@@ -170,6 +191,7 @@ class FuseController():
     @classmethod
     @lock_bus
     def unlight(cls, address):
+        logging.info(f"unlight: {address}")
         value = cls._read(
             cls._get_chip_address(address),
             cls._get_fuse_register_address(address)
@@ -185,6 +207,7 @@ class FuseController():
     @classmethod
     @lock_bus
     def lock(cls):
+        logging.info("lock hardware")
         for chip_address in cls.CHIP_ADDRESSES.values():
             cls._write(
                 chip_address,
@@ -195,6 +218,7 @@ class FuseController():
     @classmethod
     @lock_bus
     def unlock(cls):
+        logging.info("unlock hardware")
         for chip_address in cls.CHIP_ADDRESSES.values():
             cls._write(
                 chip_address,

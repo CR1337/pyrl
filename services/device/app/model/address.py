@@ -53,6 +53,9 @@ class Address():
         if not (0 <= self._range <= (4 - self._number % 4)):
             raise InvalidAddress(self._address_string)
 
+    def __repr__(self):
+        return f"{self._letter}{self._nunber}"
+
     @property
     def letter(self):
         return self._letter

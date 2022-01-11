@@ -22,6 +22,8 @@ class LogsController():
         format='%(asctime)s %(levelname)s: %(message)s',
         datefmt="%Y-%m-%d %H:%M:%S"
     )
+    logging.debug("initialized logging system")
+    logging.debug(f"now logging to {LOG_FILENAME}")
 
     LEVEL_COLORS = {
         'DEBUG': 'Aqua',

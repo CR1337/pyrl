@@ -16,4 +16,3 @@ def get_system_time():
 
 def get_system_time_isostring():
     return get_system_time().isoformat()
-

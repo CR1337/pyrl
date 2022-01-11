@@ -8,6 +8,7 @@ from ..controllers.system import SystemController
 from itertools import product
 from threading import Thread, Event
 import time
+import logging
 
 
 class Program():
@@ -74,22 +75,35 @@ class Program():
         command_idx = 0
 
         while (not self._stop_event.is_set()) and len(self._commands) > 0:
-            command = self._commands[command_idx]
-            current_relative_timestamp = Timestamp.from_datetime_delta(
-                get_system_time(),
-                start_time
-            )
-            if command.timestamp <= current_relative_timestamp:
-                command.execute()
-                command_idx += 1
-                if command_idx >= len(self._commands):
-                    break
+            try:
+                command = self._commands[command_idx]
+                current_relative_timestamp = Timestamp.from_datetime_delta(
+                    get_system_time(),
+                    start_time
+                )
+                if command.timestamp <= current_relative_timestamp:
+                    command.execute()
+                    command_idx += 1
+                    if command_idx >= len(self._commands):
+                        break
+            except Exception:
+                logging.exception(
+                    "unexpected error in program execution handler"
+                )
+                SystemController.put_asnyc_exception()
             time.sleep(Config.PROGRAM_RESOLUTION)
 
         if self._stop_event.is_set():
             self._stop_event.clear()
         self._callback()
         self._callback = None
+
+    def __len__(self):
+        return self._commands
+
+    @property
+    def name(self):
+        return self._program_name
 
     @property
     def as_dict(self):

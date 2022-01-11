@@ -1,6 +1,8 @@
 from ..util.system_time import get_system_time, set_system_time
 from ..util.exceptions import RLException
 
+from os import environ
+
 
 class MasterAlreadyRegistered(RLException):
     pass
@@ -33,6 +35,7 @@ class SystemController():
     @classmethod
     def get_status(cls):
         return {
+            'device_id': cls.get_device_id(),
             'system_time': get_system_time(),
             'connected_master_ip': cls._connected_master_ip
         }
@@ -43,7 +46,4 @@ class SystemController():
 
     @classmethod
     def get_device_id(cls):
-        return {
-            'connected_master_ip': cls._connected_master_ip,
-            'system_time': get_system_time()
-        }
+        return environ['PYRL_DEVCIE_ID']

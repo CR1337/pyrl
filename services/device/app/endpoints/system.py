@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from flask_api import status
 
 from ..util.system_time import set_system_time
@@ -52,5 +52,17 @@ def ep_status():
     endpoint='ep_logs'
 )
 def ep_logs():
-    data = request.get_json(force=True)
-    return LogsController.get_logs(data['log_format']), status.HTTP_200_OK
+    return render_template(
+        'logs.html',
+        device_id=SystemController.get_device_id(),
+        log_lines=LogsController.get_logs('html')
+    ), status.HTTP_200_OK
+
+
+@system_blueprint.route(
+    "/logs/raw",
+    methods=['GET'],
+    endpoint='ep_logs_raw'
+)
+def ep_logs_raw():
+    return LogsController.get_logs('raw'), status.HTTP_200_OK

@@ -43,7 +43,7 @@ I2C_BUS = 1
 
 def _read_chip_addresses():
     address_dump = str(
-        subprocess.subprocess.check_output(
+        subprocess.check_output(
             f"/usr/sbin/i2cdetect -y {I2C_BUS}",
             shell=True
         ),

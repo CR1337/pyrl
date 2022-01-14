@@ -1,8 +1,8 @@
 import time
 import logging
-from services.device.app.controllers.system import SystemController
+from .system import SystemController
 
-from services.device.app.model.program import Program
+from ..model.program import Program
 from ..util.exceptions import RLException
 from .fuse import FuseController
 from ..util.system_time import get_system_time

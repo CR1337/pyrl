@@ -41,6 +41,40 @@ def lock_bus(func):
 I2C_BUS = 1
 
 
+def _read_chip_addresses():
+    address_dump = str(
+        subprocess.subprocess.check_output(
+            f"/usr/sbin/i2cdetect -y {I2C_BUS}",
+            shell=True
+        ),
+        encoding='utf-8'
+    )
+    row_0x60 = [
+        row for row in address_dump.split("\n")
+        if row.startswith("60:")
+    ][0]
+    row_entries = [
+        entry for entry in row_0x60.split(" ")[1:]
+        if all(c in string.hexdigits for c in entry) and len(entry) > 0
+    ]
+    addresses = [
+        int(address, 16) for address
+        in row_entries
+        if 0x60 <= int(address, 16) <= 0x6f
+            and int(address, 16) not in [0x68, 0x6b]
+    ]
+    logging.debug(
+        f"found I2C addresses: {', '.join([hex(a) for a in addresses])}"
+    )
+    return {
+        letter: address
+        for letter, address in zip(
+            string.ascii_lowercase,
+            sorted(addresses)
+        )
+    }
+
+
 class FuseController():
     # TODO: logging
 
@@ -60,41 +94,6 @@ class FuseController():
     except OSError:
         logging.exception(f"could not connect to I2C-Bus: {I2C_BUS}")
         raise BusError()
-
-    @staticmethod
-    @lock_bus
-    def _read_chip_addresses():
-        address_dump = str(
-            subprocess.subprocess.check_output(
-                f"/usr/sbin/i2cdetect -y {I2C_BUS}",
-                shell=True
-            ),
-            encoding='utf-8'
-        )
-        row_0x60 = [
-            row for row in address_dump.split("\n")
-            if row.startswith("60:")
-        ][0]
-        row_entries = [
-            entry for entry in row_0x60.split(" ")[1:]
-            if all(c in string.hexdigits for c in entry) and len(entry) > 0
-        ]
-        addresses = [
-            int(address, 16) for address
-            in row_entries
-            if 0x60 <= int(address, 16) <= 0x6f
-                and int(address, 16) not in [0x68, 0x6b]
-        ]
-        logging.debug(
-            f"found I2C addresses: {', '.join([hex(a) for a in addresses])}"
-        )
-        return {
-            letter: address
-            for letter, address in zip(
-                string.ascii_lowercase,
-                sorted(addresses)
-            )
-        }
 
     CHIP_ADDRESSES = _read_chip_addresses()
     FUSE_STATES = {

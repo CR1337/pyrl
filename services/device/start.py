@@ -1,7 +1,17 @@
-from app import app
+from app import register_blueprints
 from os import environ
+from flask import Flask
+
 
 if __name__ == "__main__":
+    app = Flask(__name__)
+
+    @app.route("/", methods=['GET'], endpoint="route_index")
+    def route_index():
+        return "HELLO WORLD!!!"
+
+    #register_blueprints(app)
+
     if bool(environ.get('PYRL_DEBUG', False)):
         app.run(
             host='0.0.0.0',

@@ -10,7 +10,7 @@ class InvalidLogFormat(RLException):
 
 class LogsController():
 
-    LOGS_PATH = "/var/log/pyrl"
+    LOGS_PATH = "/home/cr/pyrl"
     LOG_FILENAME = (
         f"{LOGS_PATH}/"
         f"{get_system_time_isostring()}_device.log"

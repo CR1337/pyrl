@@ -7,6 +7,7 @@ from itertools import product
 import logging
 
 from ..util.exceptions import RLException
+from .system import SystemController
 
 
 class BusError(RLException):
@@ -41,38 +42,61 @@ def lock_bus(func):
 I2C_BUS = 1
 
 
-def _read_chip_addresses():
-    address_dump = str(
-        subprocess.check_output(
-            f"/usr/sbin/i2cdetect -y {I2C_BUS}",
-            shell=True
-        ),
-        encoding='utf-8'
-    )
-    row_0x60 = [
-        row for row in address_dump.split("\n")
-        if row.startswith("60:")
-    ][0]
-    row_entries = [
-        entry for entry in row_0x60.split(" ")[1:]
-        if all(c in string.hexdigits for c in entry) and len(entry) > 0
-    ]
-    addresses = [
-        int(address, 16) for address
-        in row_entries
-        if 0x60 <= int(address, 16) <= 0x6f
-            and int(address, 16) not in [0x68, 0x6b]
-    ]
-    logging.debug(
-        f"found I2C addresses: {', '.join([hex(a) for a in addresses])}"
-    )
-    return {
-        letter: address
-        for letter, address in zip(
-            string.ascii_lowercase,
-            sorted(addresses)
+class DebugSMBus():
+
+    def __init__(self, bus):
+        self._bus = bus
+
+    def write_byte_data(self, chip_address, register_address, value):
+        logging.debug(
+            f"Simulated i2c write of value {value} "
+            f"to {hex(chip_address)}{hex(register_address)}"
         )
-    }
+
+    def read_byte_data(self, chip_address, register_address):
+        logging.debug(
+            f"Simulated i2c read "
+            f"from {hex(chip_address)}{hex(register_address)}"
+        )
+        return 0x00
+
+
+if SystemController.is_in_debug_mode:
+    def _read_chip_addresses():
+        return {'a': 0x60, 'b': 0x61, 'c': 0x62}
+else:
+    def _read_chip_addresses():
+        address_dump = str(
+            subprocess.check_output(
+                f"/usr/sbin/i2cdetect -y {I2C_BUS}",
+                shell=True
+            ),
+            encoding='utf-8'
+        )
+        row_0x60 = [
+            row for row in address_dump.split("\n")
+            if row.startswith("60:")
+        ][0]
+        row_entries = [
+            entry for entry in row_0x60.split(" ")[1:]
+            if all(c in string.hexdigits for c in entry) and len(entry) > 0
+        ]
+        addresses = [
+            int(address, 16) for address
+            in row_entries
+            if 0x60 <= int(address, 16) <= 0x6f
+                and int(address, 16) not in [0x68, 0x6b]
+        ]
+        logging.debug(
+            f"found I2C addresses: {', '.join([hex(a) for a in addresses])}"
+        )
+        return {
+            letter: address
+            for letter, address in zip(
+                string.ascii_lowercase,
+                sorted(addresses)
+            )
+        }
 
 
 class FuseController():
@@ -90,7 +114,10 @@ class FuseController():
     REVERSE_UNLOCK_MASK = 0xff - UNLOCK_MASK
 
     try:
-        BUS = SMBus(I2C_BUS)
+        if SystemController.is_in_debug_mode:
+            BUS = DebugSMBus(I2C_BUS)
+        else:
+            BUS = SMBus(I2C_BUS)
     except OSError:
         logging.exception(f"could not connect to I2C-Bus: {I2C_BUS}")
         raise BusError()

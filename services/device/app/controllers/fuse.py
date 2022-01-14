@@ -38,11 +38,13 @@ def lock_bus(func):
     return wrapper
 
 
+I2C_BUS = 1
+
+
 class FuseController():
     # TODO: logging
 
     LOCK = Lock()
-    I2C_BUS = 1
 
     LOCK_REGISTER_ADDRESS = 0x00
     FUSE_REGISTER_ADDRESSES = [0x14, 0x15, 0x16, 0x17]
@@ -59,12 +61,12 @@ class FuseController():
         logging.exception(f"could not connect to I2C-Bus: {I2C_BUS}")
         raise BusError()
 
-    @classmethod
+    @staticmethod
     @lock_bus
-    def _read_chip_addresses(cls):
+    def _read_chip_addresses():
         address_dump = str(
             subprocess.subprocess.check_output(
-                f"/usr/sbin/i2cdetect -y {cls.I2C_BUS}",
+                f"/usr/sbin/i2cdetect -y {I2C_BUS}",
                 shell=True
             ),
             encoding='utf-8'
@@ -146,7 +148,7 @@ class FuseController():
             cls.BUS.write_byte_data(chip_address, register_address, value)
         except OSError:
             raise WriteError(
-                cls.I2C_BUS,
+                I2C_BUS,
                 chip_address,
                 register_address,
                 value
@@ -166,7 +168,7 @@ class FuseController():
             return value
         except OSError:
             raise ReadError(
-                cls.I2C_BUS,
+                I2C_BUS,
                 chip_address,
                 register_address
             )

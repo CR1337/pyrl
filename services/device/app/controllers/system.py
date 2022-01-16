@@ -6,7 +6,7 @@ from os import environ
 from queue import Queue
 import traceback
 import sys
-import logging
+from .logs import LogsController
 
 
 class MasterAlreadyRegistered(RLException):
@@ -24,19 +24,19 @@ class SystemController():
 
     @classmethod
     def change_system_time(cls, system_time):
-        logging.info(f"change system time to {system_time}")
+        LogsController.info(f"change system time to {system_time}")
         set_system_time(system_time)
 
     @classmethod
     def register_master(cls, master_ip):
-        logging.info(f"register master: {master_ip}")
+        LogsController.info(f"register master: {master_ip}")
         if cls.CONNECTED_MASTER_IP is not None:
             raise MasterAlreadyRegistered()
         cls.CONNECTED_MASTER_IP = master_ip
 
     @classmethod
     def deregister_master(cls):
-        logging.info("deregister master")
+        LogsController.info("deregister master")
         if cls.CONNECTED_MASTER_IP is None:
             raise NoMasterRegistered()
         cls.CONNECTED_MASTER_IP = None

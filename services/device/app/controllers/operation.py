@@ -1,5 +1,5 @@
 import time
-import logging
+from .logs import LogsController
 from .system import SystemController
 
 from ..model.program import Program
@@ -69,7 +69,7 @@ class OperationController():
 
     @classmethod
     def _set_state(cls, value):
-        logging.debug(f"set state to {value}")
+        LogsController.debug(f"set state to {value}")
         cls.STATE = value
 
     @lock_interaction
@@ -81,7 +81,7 @@ class OperationController():
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
-        logging.info(
+        LogsController.info(
             f"set program to {program.name} with {len(program)} commands"
         )
         cls.PROGRAM = program
@@ -96,7 +96,7 @@ class OperationController():
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
-        logging.info("delete program")
+        LogsController.info("delete program")
         cls.PROGRAM = None
         cls._set_state('unloaded')
 
@@ -110,7 +110,7 @@ class OperationController():
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
-        logging.info("run program")
+        LogsController.info("run program")
         cls.PROGRAM.run(callback=cls._program_callback)
         cls._set_state('running')
 
@@ -119,7 +119,7 @@ class OperationController():
     def stop_program(cls):
         if cls.STATE != 'running':
             raise NoProgramRunning()
-        logging.info("stop program")
+        LogsController.info("stop program")
         cls.PROGRAM.stop()
 
     @raise_on_lock
@@ -132,7 +132,7 @@ class OperationController():
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
-        logging.info(f"schedule program for {schedule_time}")
+        LogsController.info(f"schedule program for {schedule_time}")
         cls.SCHEDULED_TIME = schedule_time
         cls.SCHEDULE_THREAD = Thread(
             target=cls._schedule_handler,
@@ -146,7 +146,7 @@ class OperationController():
     def unschedule_program(cls):
         if cls.STATE != 'scheduled':
             raise NoProgramScheduled()
-        logging.info('unschedule program')
+        LogsController.info('unschedule program')
         cls.UNSCHEDULE_EVENT.set()
 
     @raise_on_lock
@@ -159,7 +159,7 @@ class OperationController():
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
-        logging.info(f"fire {address}")
+        LogsController.info(f"fire {address}")
         FuseController.light(address)
 
     @raise_on_lock
@@ -172,14 +172,14 @@ class OperationController():
             raise ProgramScheduled()
         elif cls.STATE == 'running':
             raise ProgramRunning()
-        logging.info("run testloop")
+        LogsController.info("run testloop")
         cls.PROGRAM = Program.testloop_program()
         cls.PROGRAM.run(callback=cls._program_callback)
         cls._set_state('running')
 
     @classmethod
     def _program_callback(cls):
-        logging.debug("running program callback")
+        LogsController.debug("running program callback")
         cls.PROGRAM = None
         cls._set_state('unloaded')
 
@@ -196,7 +196,7 @@ class OperationController():
                     return
                 time.sleep(Config.SCHEDULING_RESOLUTION)
         except Exception:
-            logging.exception("unexpected error in schedule handler")
+            LogsController.exception("unexpected error in schedule handler")
             SystemController.put_asnyc_exception()
 
         if cls.UNSCHEDULE_EVENT.is_set():

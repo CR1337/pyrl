@@ -1,17 +1,10 @@
-from app import register_blueprints
+from app import app
 from os import environ
-from flask import Flask
+
+from .app.controllers.logs import LogsController
 
 
 if __name__ == "__main__":
-    app = Flask(__name__)
-
-    @app.route("/", methods=['GET'], endpoint="route_index")
-    def route_index():
-        return "HELLO WORLD!!!"
-
-    #register_blueprints(app)
-
     if bool(environ.get('PYRL_DEBUG', False)):
         app.run(
             host='0.0.0.0',
@@ -30,3 +23,5 @@ if __name__ == "__main__":
             threaded=False,
             processes=4
         )
+
+    LogsController.initialize()

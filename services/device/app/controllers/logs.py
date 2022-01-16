@@ -1,5 +1,4 @@
 from ..util.system_time import get_system_time_isostring
-import logging
 from ..util.exceptions import RLException
 
 
@@ -15,16 +14,6 @@ class LogsController():
         f"{LOGS_PATH}/"
         f"{get_system_time_isostring()}_device.log"
     )
-    logging.basicConfig(
-        filename=LOG_FILENAME,
-        encoding='utf-8',
-        level=logging.DEBUG,
-        format='%(asctime)s %(levelname)s: %(message)s',
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    logging.debug("initialized logging system")
-    logging.debug(f"now logging to {LOG_FILENAME}")
-
     LEVEL_COLORS = {
         'DEBUG': 'Aqua',
         'INFO': 'White',
@@ -32,6 +21,57 @@ class LogsController():
         'ERROR': 'FireBrick',
         'CRITICAL': 'DeepPink'
     }
+
+    @classmethod
+    def initialize(cls):
+        import logging
+        logging.basicConfig(
+            filename=cls.LOG_FILENAME,
+            encoding='utf-8',
+            level=logging.DEBUG,
+            format='%(asctime)s %(levelname)s: %(message)s',
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        logging.debug("initialized logging system")
+        logging.debug(f"now logging to {cls.LOG_FILENAME}")
+
+    @classmethod
+    def _log(cls, level, message):
+        # logging interferes with flask. logging must not be imported
+        # before app.run is called
+        import logging
+        {
+            'debug': logging.debug,
+            'info': logging.info,
+            'warning': logging.warning,
+            'error': logging.error,
+            'exception': logging.exception,
+            'critical': logging.critical
+        }[level](message)
+
+    @classmethod
+    def debug(cls, message):
+        cls._log('debug', message)
+
+    @classmethod
+    def info(cls, message):
+        cls._log('info', message)
+
+    @classmethod
+    def warning(cls, message):
+        cls._log('warning', message)
+
+    @classmethod
+    def error(cls, message):
+        cls._log('error', message)
+
+    @classmethod
+    def exception(cls, message):
+        cls._log('exception', message)
+
+    @classmethod
+    def critical(cls, message):
+        cls._log('critial', message)
 
     @classmethod
     def _wrap_logs_in_html(cls, raw_logs):

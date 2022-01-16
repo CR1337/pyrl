@@ -8,7 +8,7 @@ from ..controllers.system import SystemController
 from itertools import product
 from threading import Thread, Event
 import time
-import logging
+from ..controllers.logs import LogsController
 
 
 class Program():
@@ -87,7 +87,7 @@ class Program():
                     if command_idx >= len(self._commands):
                         break
             except Exception:
-                logging.exception(
+                LogsController.exception(
                     "unexpected error in program execution handler"
                 )
                 SystemController.put_asnyc_exception()

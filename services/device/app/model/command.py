@@ -6,7 +6,7 @@ from .timestamp import Timestamp
 from .config import Config
 
 from threading import Thread
-import logging
+from ..controllers.logs import LogsController
 import time
 
 
@@ -37,7 +37,7 @@ class Command():
         FuseController.set_fuse_state(self._address, 'staged')
 
     def execute(self):
-        logging.info(f"execute command: {self._address}")
+        LogsController.info(f"execute command: {self._address}")
         execution_thread = Thread(
             target=self._execution_handler,
             name=f"command_execution_thread_{str(self._address)}"
@@ -49,7 +49,7 @@ class Command():
             FuseController.light(self._address)
             time.sleep(Config.FIRE_DURATION)
         except Exception:
-            logging.exception(
+            LogsController.exception(
                 f"unexpected lighting error in "
                 f"command execution handler: {self._address}"
             )
@@ -59,7 +59,7 @@ class Command():
                 FuseController.set_fuse_state(self._address, 'fired')
                 FuseController.unlight(self._address)
             except Exception:
-                logging.exception(
+                LogsController.exception(
                     f"unexpected unlighting error in "
                     f"command execution handler: {self._address}"
                 )

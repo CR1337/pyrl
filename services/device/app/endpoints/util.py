@@ -1,7 +1,7 @@
 from functools import wraps
 import sys
 import traceback
-import logging
+from ..controllers.logs import LogsController
 
 from flask import make_response, request
 from flask_api import status
@@ -10,7 +10,7 @@ from ..util.exceptions import RLException
 
 
 def log_request(message):
-    logging.info(f"REQUEST from {request.remote_addr}: {message}")
+    LogsController.info(f"REQUEST from {request.remote_addr}: {message}")
 
 
 def handle_exceptions(func):
@@ -21,11 +21,11 @@ def handle_exceptions(func):
             exception_raised = False
         except RLException:
             status_code = status.HTTP_400_BAD_REQUEST
-            logging.exception(msg="Bad Request")
+            LogsController.exception(msg="Bad Request")
             exception_raised = True
         except Exception:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            logging.exception(msg="Internal Server Error")
+            LogsController.exception(msg="Internal Server Error")
             exception_raised = True
         finally:
             if exception_raised:

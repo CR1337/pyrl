@@ -1,8 +1,8 @@
-from app import app
 from os import environ
 
-from .app.controllers.logs import LogsController
+from app import app
 
+from .app.controllers.logs import LogsController
 
 if __name__ == "__main__":
     if bool(environ.get('PYRL_DEBUG', False)):

@@ -1,11 +1,10 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, request
 from flask_api import status
 
-from ..util.system_time import set_system_time
-
-from .util import handle_exceptions, log_request
-from ..controllers.system import SystemController
 from ..controllers.logs import LogsController
+from ..controllers.system import SystemController
+from ..util.system_time import set_system_time
+from .util import handle_exceptions, log_request
 
 system_blueprint = Blueprint('system_blueprint', __name__)
 

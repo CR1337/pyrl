@@ -1,11 +1,11 @@
-from functools import wraps
 import sys
 import traceback
-from ..controllers.logs import LogsController
+from functools import wraps
 
 from flask import make_response, request
 from flask_api import status
 
+from ..controllers.logs import LogsController
 from ..util.exceptions import RLException
 
 

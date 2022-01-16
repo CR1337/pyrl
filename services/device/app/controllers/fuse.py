@@ -1,12 +1,13 @@
-from threading import Lock
-import subprocess
 import string
-from smbus2 import SMBus
+import subprocess
 from functools import wraps
 from itertools import product
-from .logs import LogsController
+from threading import Lock
+
+from smbus2 import SMBus
 
 from ..util.exceptions import RLException
+from .logs import LogsController
 from .system import SystemController
 
 

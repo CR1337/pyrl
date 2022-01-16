@@ -1,14 +1,13 @@
 import time
-from .logs import LogsController
-from .system import SystemController
+from threading import Event, Lock, Thread
 
+from ..model.config import Config
 from ..model.program import Program
 from ..util.exceptions import RLException
-from .fuse import FuseController
 from ..util.system_time import get_system_time
-from ..model.config import Config
-
-from threading import Lock, Event, Thread
+from .fuse import FuseController
+from .logs import LogsController
+from .system import SystemController
 
 
 class ProgramAlreadyLoaded(RLException):

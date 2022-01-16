@@ -1,13 +1,12 @@
-from ..controllers.system import SystemController
-from ..controllers.fuse import FuseController
-
-from .address import Address
-from .timestamp import Timestamp
-from .config import Config
-
-from threading import Thread
-from ..controllers.logs import LogsController
 import time
+from threading import Thread
+
+from ..controllers.fuse import FuseController
+from ..controllers.logs import LogsController
+from ..controllers.system import SystemController
+from .address import Address
+from .config import Config
+from .timestamp import Timestamp
 
 
 class ForeignDeviceId(Exception):

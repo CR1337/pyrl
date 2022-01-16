@@ -1,14 +1,14 @@
-from .timestamp import Timestamp
-from .command import Command, ForeignDeviceId
-from ..util.system_time import get_system_time
-from .config import Config
-from ..controllers.fuse import FuseController
-from ..controllers.system import SystemController
-
-from itertools import product
-from threading import Thread, Event
 import time
+from itertools import product
+from threading import Event, Thread
+
+from ..controllers.fuse import FuseController
 from ..controllers.logs import LogsController
+from ..controllers.system import SystemController
+from ..util.system_time import get_system_time
+from .command import Command, ForeignDeviceId
+from .config import Config
+from .timestamp import Timestamp
 
 
 class Program():

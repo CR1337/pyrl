@@ -1,11 +1,11 @@
+import sys
+import traceback
 from logging import exception
-from ..util.system_time import get_system_time, set_system_time
-from ..util.exceptions import RLException
-
 from os import environ
 from queue import Queue
-import traceback
-import sys
+
+from ..util.exceptions import RLException
+from ..util.system_time import get_system_time, set_system_time
 from .logs import LogsController
 
 

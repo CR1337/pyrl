@@ -1,7 +1,7 @@
 import re
 
-from ..util.exceptions import RLException
 from ..controllers.fuse import FuseController
+from ..util.exceptions import RLException
 
 
 class AddressException(RLException):

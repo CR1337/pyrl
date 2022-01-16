@@ -1,7 +1,7 @@
 from flask import Flask
 
-from .endpoints.system import system_blueprint
 from .endpoints.operation import operation_blueprint
+from .endpoints.system import system_blueprint
 from .endpoints.user_interface import user_iterface_blueprint
 
 app = Flask(__name__)

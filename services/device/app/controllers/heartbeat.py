@@ -1,13 +1,13 @@
-from threading import Thread
 import threading
 import time
+from threading import Thread
 
-
-from .logs import LogsController
 import requests
+
+from ..model.config import Config
+from .logs import LogsController
 from .operation import OperationController
 from .system import SystemController
-from ..model.config import Config
 
 
 class HeartbeatController():

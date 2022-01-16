@@ -1,5 +1,5 @@
-from ..util.system_time import get_system_time_isostring
 from ..util.exceptions import RLException
+from ..util.system_time import get_system_time_isostring
 
 
 class InvalidLogFormat(RLException):

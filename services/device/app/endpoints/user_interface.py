@@ -1,15 +1,14 @@
-from flask import (Blueprint, Response, render_template,
-                   send_from_directory)
-from flask_api import status
-
-import time
 import json
+import time
 from itertools import count
 
-from .util import handle_exceptions, log_request
-from ..model.config import Config
+from flask import Blueprint, Response, render_template, send_from_directory
+from flask_api import status
+
 from ..controllers.operation import OperationController
 from ..controllers.system import SystemController
+from ..model.config import Config
+from .util import handle_exceptions, log_request
 
 user_iterface_blueprint = Blueprint('user_interface_blueprint', __name__)
 
